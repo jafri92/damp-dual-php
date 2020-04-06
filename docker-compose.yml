@@ -1,0 +1,71 @@
+version: "3.2"
+services:
+
+
+  56-php:
+    build:
+      context: './php56/'
+      args:
+       PHP_VERSION: ${PHP_VERSION_2}
+    networks:
+      - backend
+    volumes:
+      - ./wp/:/var/www/wp/
+    container_name: "56-php"
+  72-php:
+    build: 
+      context: './php72/'
+      args:
+       PHP_VERSION: ${PHP_VERSION_1}
+    networks:
+      - backend
+    volumes:
+      - ./magento/:/var/www/magento/
+    container_name: "72-php"
+  apache:
+    build:
+      context: './apache/'
+      args:
+       APACHE_VERSION: ${APACHE_VERSION}
+    depends_on:
+      - 56-php
+      - 72-php
+      - mariadb
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./wp/:/var/www/wp/
+      - ./magento/:/var/www/magento/
+    container_name: "${APACHE_NAME}"
+  mariadb:
+    image: mariadb:${MARIADB_VERSION:-latest}
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb:/var/lib/mysql
+    networks:
+      - backend
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_USER_1: "${DB_USERNAME_1}"
+      MYSQL_PASSWORD: "${DB_PASSWORD_1}"
+      MYSQL_DATABASE: "${DB_NAME_1}"
+      container_name: "${MARIADB_NAME}"
+    #  adminer:
+    #    image: adminer
+    #    ports:
+    #      - 8080:8080
+    #    networks:
+    #      - backend
+    #    restart: always
+    #    container_name: "${ADMINER_NAME}"
+networks:
+  backend:
+  frontend:

@@ -1,0 +1,9 @@
+ARG PHP_VERSION
+FROM php:${PHP_VERSION}-fpm
+RUN apt-get update -y && \
+    apt-get install -y libpng-dev libxml2-dev libmcrypt-dev && \
+    pecl install mcrypt-1.0.1 && \
+    docker-php-ext-enable mcrypt && \
+    docker-php-ext-install pdo soap pdo_mysql gd
+RUN chmod 777 /var/www/html
+CMD ["php-fpm"]
