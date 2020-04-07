@@ -40,6 +40,24 @@ services:
       - ./wp/:/var/www/wp/
       - ./magento/:/var/www/magento/
     container_name: "${APACHE_NAME}"
+  nginx:
+    build:
+      context: './nginx/'
+    depends_on:
+      - 56-php
+      - 72-php
+      - mariadb
+      - apache
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./wp/:/var/www/wp/
+      - ./magento/:/var/www/magento/
+    container_name: "${NGINX_NAME}"
   mariadb:
     image: mariadb:${MARIADB_VERSION:-latest}
     restart: always
